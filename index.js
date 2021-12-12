@@ -109,16 +109,16 @@ async function run() {
         options
       );
       res.json(result);
-
-      app.put("/users/admin", async (req, res) => {
-        const email = req.body;
-        const user = req.body;
-        console.log("put", user);
-        const filter = { email: user.email };
-        const updateDoc = { $set: { role: "admin" } };
-        const result = await usersCollection.updateOne(filter, updateDoc);
-        res.json(result);
-      });
+    });
+    app.put("/users/admin", async (req, res) => {
+      // const email = req.body;
+      const user = req.body;
+      console.log("put", user);
+      const filter = { email: user.email };
+      const updateDoc = { $set: { role: "admin" } };
+      const result = await usersCollection.updateOne(filter, updateDoc);
+      console.log(result);
+      res.json(result);
     });
   } finally {
     // await client.close();
