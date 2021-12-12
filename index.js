@@ -25,6 +25,11 @@ async function run() {
     await client.connect();
     const database = client.db("spokes_bikes");
     const productCollection = database.collection("products");
+    const purchaseCollection = client
+      .db("spokes_bikes")
+      .collection("purchases");
+    const usersCollection = database.collection("users");
+
     // console.log("database connected successfully");
 
     //GET Products API
@@ -49,6 +54,71 @@ async function run() {
       console.log("hit the post api", product);
       const result = await productCollection.insertOne(product);
       res.json(result);
+    });
+
+    //DELETE API
+    app.delete("/products/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await productCollection.deleteOne(query);
+      res.json(result);
+    });
+
+    //for Purchases--------------
+    app.get("/purchases", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      // console.log(query);
+      const cursor = purchaseCollection.find(query);
+      const purchases = await cursor.toArray();
+      res.json(purchases);
+    });
+
+    app.post("/purchases", async (req, res) => {
+      const purchase = req.body;
+      const result = await purchaseCollection.insertOne(purchase);
+      console.log(result);
+      res.json(result);
+    });
+
+    //DELETE API
+    app.delete("/purchases/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await purchaseCollection.deleteOne(query);
+      res.json(result);
+    });
+
+    //users
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const result = await usersCollection.insertOne(user);
+      console.log(result);
+      res.json(result);
+    });
+
+    app.put("/users", async (req, res) => {
+      const user = req.body;
+      // console.log("put", user);
+      const filter = { email: user.email };
+      const options = { upsert: true };
+      const updateDoc = { $set: user };
+      const result = await usersCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.json(result);
+
+      app.put("/users/admin", async (req, res) => {
+        const email = req.body;
+        const user = req.body;
+        console.log("put", user);
+        const filter = { email: user.email };
+        const updateDoc = { $set: { role: "admin" } };
+        const result = await usersCollection.updateOne(filter, updateDoc);
+        res.json(result);
+      });
     });
   } finally {
     // await client.close();
