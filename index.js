@@ -29,6 +29,7 @@ async function run() {
       .db("spokes_bikes")
       .collection("purchases");
     const usersCollection = database.collection("users");
+    const reviewCollection = database.collection("viewers");
 
     // console.log("database connected successfully");
 
@@ -119,6 +120,61 @@ async function run() {
       const result = await usersCollection.updateOne(filter, updateDoc);
       console.log(result);
       res.json(result);
+    });
+
+    app.get("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      let isAdmin = false;
+      if (user?.role === "admin") {
+        isAdmin = true;
+      }
+      res.json({ admin: isAdmin });
+    });
+
+    //Review---------------
+    const users = [
+      { id: 0, name: "Jami", email: "jami@gmail.com" },
+      { id: 1, name: "Tim", email: "tim@gmail.com" },
+      { id: 2, name: "Rim", email: "rim@gmail.com" },
+      { id: 3, name: "Dim", email: "dim@gmail.com" },
+      { id: 4, name: "kim", email: "kim@gmail.com" },
+      { id: 5, name: "Vim", email: "vim@gmail.com" },
+      { id: 6, name: "Qim", email: "Qim@gmail.com" },
+      { id: 7, name: "Pim", email: "pim@gmail.com" },
+    ];
+
+    app.get("/viewers", (req, res) => {
+      // console.log(req.query.search);
+      const search = req.query.search;
+      //use query parameter
+      if (search) {
+        const searchResult = users.filter((user) =>
+          user.name.toLocaleLowerCase().includes(search)
+        );
+        res.send(searchResult);
+      } else {
+        res.send(users);
+      }
+    });
+
+    //app method
+    app.post("/viewers", (req, res) => {
+      const newUser = req.body;
+      newUser.id = users.length;
+      users.push(newUser);
+      console.log("hitting the post", req.body);
+      // res.send(JSON.stringify(newUser));
+      res.json(newUser);
+    });
+
+    // dynamic API (particular/single person's id)
+    app.get("/viewers/:id", (req, res) => {
+      const id = req.params.id;
+      const user = users[id];
+      res.send(user);
+      // console.log(req.params.id);
     });
   } finally {
     // await client.close();
