@@ -82,8 +82,23 @@ async function run() {
       res.json(result);
     });
 
-    //DELETE API
-    app.delete("/purchases/:id", async (req, res) => {
+    //for delete order from dashboard---------------
+    // //DELETE API
+    // app.delete("/purchases/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const query = { _id: ObjectId(id) };
+    //   const result = await purchaseCollection.deleteOne(query);
+    //   res.json(result);
+    // });
+
+    app.delete("/deleteOrder/:id", async (req, res) => {
+      const result = await purchaseCollection.deleteOne({
+        _id: ObjectId(req.params.id),
+      });
+      res.send(result);
+    });
+    //-------------------------
+    app.delete("/deleteOrder/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await purchaseCollection.deleteOne(query);
